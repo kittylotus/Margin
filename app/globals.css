@@ -415,3 +415,125 @@ input:focus,textarea:focus{border-color:var(--margin-accent)!important;box-shado
 .collection-field{min-width:0;margin:15px 0}.detail-field-head{height:20px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;color:var(--margin-text);font-size:14px;font-weight:500}.detail-add-action{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:var(--margin-accent);font-size:10px;font-weight:600;padding:2px 0}.detail-add-action:hover{filter:none;text-decoration:underline;text-underline-offset:3px}.collection-field>.choice{margin-top:0}
 .tag-suggestions.is-empty{min-height:66px}.tag-example-chip{height:25px;padding:0 8px;display:inline-flex;align-items:center;border:1px dashed color-mix(in srgb,var(--margin-border) 82%,transparent);border-radius:999px;color:var(--margin-muted);background:transparent;font-size:10px}.tag-suggestions.is-empty small{margin-left:2px}
 @media(max-width:767px){.move-new-row{flex-direction:column}.move-new-row .button{width:100%}.detail-field-head{height:auto}.collection-field{margin:15px 0}.tag-suggestions.is-empty{min-height:0}}
+
+/* Mobile notes shim */
+.mobile-annotations-sheet{
+  height:min(82dvh,760px)!important;
+  max-height:82dvh!important;
+  gap:0!important;
+  padding:10px 0 max(12px,env(safe-area-inset-bottom))!important;
+  border-color:var(--margin-border)!important;
+  border-radius:calc(var(--margin-radius) + 6px) calc(var(--margin-radius) + 6px) 0 0!important;
+  background:var(--margin-surface)!important;
+  color:var(--margin-text)!important;
+  box-shadow:0 -18px 48px color-mix(in srgb,#000 34%,transparent)!important;
+  overflow:hidden!important;
+}
+.mobile-annotations-sheet::before{
+  content:"";
+  display:block;
+  width:42px;
+  height:4px;
+  margin:0 auto 7px;
+  border-radius:999px;
+  background:color-mix(in srgb,var(--margin-muted) 44%,transparent);
+  flex:0 0 auto;
+}
+.mobile-annotations-sheet .annotations-panel{
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  min-height:0;
+  max-height:none!important;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  border:0!important;
+  padding:0 16px 12px!important;
+  background:var(--margin-surface);
+  scrollbar-gutter:stable;
+}
+.mobile-annotations-sheet .annotations-head{
+  position:sticky;
+  top:0;
+  z-index:3;
+  padding:8px 0 12px;
+  background:linear-gradient(var(--margin-surface) 82%,transparent);
+}
+.mobile-annotations-sheet .annotations-head strong{font-size:calc(18px * var(--reader-scale))}
+.mobile-annotations-sheet .annotation-quote{font-size:calc(13px * var(--reader-scale));line-height:1.55}
+.mobile-annotations-sheet .annotation-card textarea{font-size:calc(11px * var(--reader-scale));line-height:1.55}
+.mobile-annotations-sheet .annotations-list{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+.mobile-annotations-sheet .annotation-new-note{position:sticky;top:54px;z-index:2;background:var(--margin-surface)}
+@media(min-width:768px){.mobile-annotations-sheet{display:none!important}}
+
+/* Mobile reader command cleanup + annotation dock */
+.annotated-prose{
+  -webkit-touch-callout:none;
+}
+.mobile-notes-dock{display:none}
+@media(max-width:767px){
+  .reader-commandbar{gap:10px}
+  .reader-command-actions{width:100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .reader-command-utilities{margin-left:auto}
+  .mobile-notes-dock{
+    position:fixed;
+    left:50%;
+    bottom:calc(16px + env(safe-area-inset-bottom));
+    z-index:72;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    min-height:44px;
+    max-width:calc(100vw - 28px);
+    padding:0 14px;
+    border:1px solid color-mix(in srgb,var(--margin-accent) 44%,var(--margin-border));
+    border-radius:999px;
+    background:color-mix(in srgb,var(--margin-surface) 94%,transparent);
+    color:var(--margin-text);
+    box-shadow:0 12px 32px color-mix(in srgb,#000 30%,transparent),0 0 0 1px color-mix(in srgb,var(--margin-background) 50%,transparent);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    font-size:13px;
+    font-weight:650;
+    white-space:nowrap;
+  }
+  .mobile-notes-dock:hover,.mobile-notes-dock:active{filter:none;background:color-mix(in srgb,var(--margin-accent) 10%,var(--margin-surface))}
+  .mobile-notes-dock svg{color:var(--margin-accent)}
+  .mobile-notes-dock b{
+    min-width:20px;
+    height:20px;
+    padding:0 6px;
+    display:grid;
+    place-items:center;
+    border-radius:999px;
+    background:var(--margin-soft-strong);
+    color:var(--margin-accent);
+    font-size:10px;
+    font-variant-numeric:tabular-nums;
+  }
+  .reader-main{padding-bottom:74px}
+  .selection-toolbar{max-width:calc(100vw - 16px);gap:3px;padding:5px}
+  .selection-toolbar>button{padding:0 7px}
+}
+
+/* Compact mobile reader command row */
+.reader-mobile-primary{display:contents}
+.reader-mobile-actions{display:none}
+.reader-desktop-actions{display:flex;align-items:center;gap:8px}
+.reader-transcript-label-mobile{display:none}
+@media(max-width:767px){
+  .reader-commandbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 10px}
+  .reader-mobile-primary{display:flex;grid-column:1/-1;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+  .reader-mobile-primary [data-slot="tabs-list"]{min-width:0;flex:0 1 auto}
+  .reader-mobile-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .reader-mobile-actions .button{height:36px;padding:0 10px;font-size:12px}
+  .reader-mobile-actions [data-slot="dropdown-menu-trigger"]{height:36px!important;padding:0 10px!important;font-size:12px!important}
+  .reader-command-actions{grid-column:1/-1;width:100%;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+  .reader-desktop-actions{display:none}
+  .reader-command-actions>.reader-notes-toggle{display:none}
+  .reader-command-utilities{width:auto!important;margin-left:auto!important;padding:0!important;border:0!important;justify-content:flex-end}
+  .reader-transcript-label-full{display:none}
+  .reader-transcript-label-mobile{display:inline}
+}

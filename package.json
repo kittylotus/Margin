@@ -2,7 +2,7 @@
   "name": "margin-local",
   "version": "1.2.0",
   "private": true,
-  "description": "Margin — a local reading library for turning video transcripts into readable, annotatable articles.",
+  "description": "Margin \u2014 a local reading library for turning video transcripts into readable, annotatable articles.",
   "engines": {
     "node": ">=22.13.0"
   },
@@ -14,8 +14,11 @@
     "lint": "eslint app components hooks lib",
     "check:local": "node local-tools/check-localhost.mjs",
     "check:api": "node --experimental-strip-types local-tools/check-api-contracts.ts",
-    "verify": "tsc --noEmit && node local-tools/check-localhost.mjs && node --experimental-strip-types local-tools/check-api-contracts.ts && node --experimental-strip-types local-tools/check-reader-renderer.ts",
-    "check:reader": "node --experimental-strip-types local-tools/check-reader-renderer.ts"
+    "verify": "tsc --noEmit && node local-tools/check-localhost.mjs && node --experimental-strip-types local-tools/check-api-contracts.ts && node --experimental-strip-types local-tools/check-reader-renderer.ts && node --experimental-strip-types local-tools/check-access.ts",
+    "check:reader": "node --experimental-strip-types local-tools/check-reader-renderer.ts",
+    "dev:lan": "next dev --hostname 0.0.0.0",
+    "start:lan": "next start --hostname 0.0.0.0",
+    "check:access": "node --experimental-strip-types local-tools/check-access.ts"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",
