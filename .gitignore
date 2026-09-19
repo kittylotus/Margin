@@ -1,7 +1,5 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
-/node_modules
+/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -10,40 +8,11 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# Next.js / build output
 /.next/
-/.vinext/
 /out/
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-next-env.d.ts
 /dist/
-/.wrangler/
-# Checkout-local execution profile and tool state; never publish them.
-/.sites-runtime/
-/.agents/
-/.codex/
-/outputs/
-/work/
+/coverage/
 
 # Margin local data
 /data/
@@ -51,18 +20,29 @@ next-env.d.ts
 *.sqlite-shm
 *.sqlite-wal
 
-# local build/editor clutter
-*.tsbuildinfo
+# environment / secrets
+.env*
+*.pem
+
+# logs and caches
 *.log
+*.tsbuildinfo
 .eslintcache
 .turbo/
-.idea/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# editor / OS clutter
+.DS_Store
 Thumbs.db
 Desktop.ini
+.idea/
+.vscode/
 
-# local migration / handoff artifacts
-/.migration-backup/
-/MIGRATION_MANIFEST.sha256
-/SOURCE_MANIFEST.sha256
-/V*_CHANGE_MANIFEST.sha256
-/Margin-*.zip
+# local handoff archives
+Margin-*.zip
+
+# Next.js generated types
+next-env.d.ts

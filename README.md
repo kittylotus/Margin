@@ -1,15 +1,36 @@
-# Margin — localhost edition
+# Margin
 
-This is the complete editable source for **Margin — From video to reading**, converted from the ChatGPT Sites/Cloudflare deployment into a normal local Next.js application.
+**Margin** is a local reading library for turning video transcripts into readable articles you can organize, annotate, and keep.
 
-The UI and application behavior are preserved. The hosted D1 database has been replaced by Node's built-in SQLite driver, so Margin now creates and manages its own local database automatically.
+Paste a YouTube link (or bring your own transcript), format it with an OpenAI-compatible model, then save the result into a private SQLite library. Margin includes collections, reusable tags, favorites, themes, streaming generation, notes and highlights, reader scaling, EPUB/PDF export, and encrypted AI connection profiles.
 
-## Run it
+A fresh library starts with `examples/AI Slop is Obvious.md` as a sample article in **Inbox**. Delete it whenever you want; it will not respawn.
+
+## Quick start on Windows
 
 Requirements:
 
-- Node.js 22.13.0 or newer
-- npm, pnpm, or Bun
+- Node.js 22.13 or newer
+- Bun recommended; npm also works
+
+Clone or download the repository, then double-click:
+
+```text
+START_MARGIN.cmd
+```
+
+Margin installs missing dependencies if needed and starts at:
+
+```text
+http://127.0.0.1:3000
+```
+
+Or run it manually:
+
+```powershell
+bun install
+bun run dev
+```
 
 With npm:
 
@@ -18,93 +39,85 @@ npm install
 npm run dev
 ```
 
-With Bun:
+## What Margin does
 
-```powershell
-bun install
-bun run dev
-```
+- Retrieves YouTube captions, including a PoToken/BotGuard fallback for caption tracks that return an empty `200 OK` response.
+- Imports pasted transcripts and SRT/VTT/TXT files.
+- Connects to OpenAI-compatible APIs, including local HTTP endpoints such as LM Studio or llama.cpp servers.
+- Hydrates available models from the provider's `/models` endpoint while still allowing manual model IDs.
+- Streams article generation with optional reasoning visibility, cancellation, sampler controls, and partial-draft recovery.
+- Saves articles locally with collections, tags, favorites, card colors, search, sorting, and bulk moves.
+- Supports Markdown reading, fullscreen mode, adjustable text size and reading width.
+- Adds persistent highlights, passage notes, and article notes.
+- Includes customizable themes, border geometry, and highlight colors.
+- Exports individual articles or collections to EPUB; PDF export uses the browser print flow.
 
-Open:
+## AI connections and secrets
 
-```text
-http://127.0.0.1:3000
-```
+Margin can save multiple provider connection profiles. API keys are encrypted with AES-256-GCM before they are stored in SQLite. The encryption key is machine-local and is never stored in the repository.
 
-That's it. There is no D1 migration step, Wrangler process, Cloudflare account, `.env` file, or external database service required.
+Default key locations:
+
+- Windows: `%LOCALAPPDATA%\Margin\secrets.key`
+- macOS: `~/Library/Application Support/Margin/secrets.key`
+- Linux: `${XDG_CONFIG_HOME:-~/.config}/margin/secrets.key`
+
+The browser only receives whether a saved profile **has** a key; saved key material is not returned to the UI. Changing a profile to a different endpoint also prevents the old saved key from being silently reused against the new host.
+
+This is encryption at rest, not protection from malware running as your user account: software that can read both the SQLite database and the machine-local key can decrypt saved secrets.
 
 ## Local data
 
-Margin creates its database on first API request at:
+Margin creates its SQLite database automatically at:
 
 ```text
 data/margin.sqlite
 ```
 
-The database folder and SQLite WAL files are ignored by Git. To store the database somewhere else, set `MARGIN_DB_PATH` to an absolute or relative path before starting Margin.
+The database, WAL files, environment files, and common local build/editor artifacts are ignored by Git.
 
-To back up your library, stop Margin and copy `data/margin.sqlite`.
+To back up your library, stop Margin and copy `data/margin.sqlite`. To place it somewhere else, set `MARGIN_DB_PATH`.
+
+Useful optional environment variables:
+
+- `MARGIN_DB_PATH` — custom SQLite database path
+- `MARGIN_CONFIG_DIR` — custom directory for Margin's machine-local configuration
+- `MARGIN_SECRET_KEY_PATH` — custom AES key-file path
+- `MARGIN_SECRET_KEY` — provide a 32-byte key as 64 hex characters or base64 instead of using a key file
 
 ## Commands
 
 | Command | Purpose |
 | --- | --- |
-| `npm run dev` / `bun run dev` | Start the local development server with hot reload. |
-| `npm run build` / `bun run build` | Build the production Next.js application. |
-| `npm run start` / `bun run start` | Run the production build locally. |
-| `npm run typecheck` / `bun run typecheck` | Run TypeScript validation. |
-| `npm run lint` / `bun run lint` | Run ESLint over the editable app source. |
-| `npm run check:local` / `bun run check:local` | Verify the required Node version and built-in SQLite support without starting the app. |
-| `npm run check:api` / `bun run check:api` | Run deterministic origin/provider/YouTube caption regression checks. |
-| `npm run verify` / `bun run verify` | Typecheck plus both local regression checks. |
+| `bun run dev` | Start the local development server with hot reload. |
+| `bun run build` | Build the production Next.js app. |
+| `bun run start` | Run the production build on `127.0.0.1`. |
+| `bun run typecheck` | Run TypeScript validation. |
+| `bun run lint` | Run ESLint over app source. |
+| `bun run check:local` | Check Node version and `node:sqlite`. |
+| `bun run check:api` | Run provider, streaming, origin, YouTube, and annotation regression checks. |
+| `bun run check:reader` | Run Markdown/reader rendering regression checks. |
+| `bun run verify` | Run typecheck plus all deterministic local regression checks. |
 
-## What changed from the Sites build
+Replace `bun run` with `npm run` if you use npm.
 
-- Cloudflare D1 runtime storage was replaced with local SQLite using `node:sqlite`.
-- Database tables initialize automatically at startup.
-- Development and production use normal `next dev`, `next build`, and `next start` commands.
-- The AI formatter now accepts user-selected `http://` or `https://` OpenAI-compatible endpoints, including localhost/LAN providers. The hosted build rejected private/local endpoints because its server was internet-facing and needed SSRF protection.
-- AI settings now hydrate model IDs from the provider’s `/models` endpoint (for a base URL such as `http://127.0.0.1:1234/v1`, Margin requests `http://127.0.0.1:1234/v1/models`). Manual model IDs still work.
-- Same-origin validation uses the browser-facing Host/forwarded host and treats `localhost`, `127.0.0.1`, and loopback IPv6 as equivalent on the same port, avoiding false rejections from Next.js host normalization.
-- YouTube caption retrieval handles JSON3, WebVTT, and XML timed-text responses. When YouTube returns the current PoToken-gated `200 OK` + empty-body response, Margin falls back to a local BotGuard/PoToken transcript fetch instead of falsely reporting that captions are unavailable.
-- All original Sites-specific source/configuration remains in this tree for reference, but it is no longer part of the local runtime or TypeScript build.
-- The ChatGPT `document.modelContext` integration in `app/page.tsx` is intentionally retained. It is inert in ordinary browsers and preserves compatibility if the app is ever opened in an environment that implements it.
+## Project layout
 
-## Features preserved
-
-- YouTube caption retrieval, including current PoToken-gated caption tracks on ordinary public videos
-- pasted transcript and SRT/VTT/TXT import
-- article editor
-- collections, tags, favorites, search, and sorting
-- local article persistence
-- OpenAI-compatible transcript formatting
-- manual ChatGPT handoff mode
-- PDF print view
-- EPUB export
-
+```text
+app/          Next.js UI and API routes
+components/   UI components actually used by Margin
+hooks/        shared React hooks
+lib/          SQLite, provider, transcript, export, and annotation logic
+local-tools/  deterministic regression checks
+examples/     bundled first-run sample article
+public/       favicon/static assets
+vendor/       vendored shadcn Tailwind CSS + license
+```
 
 ## YouTube transcript note
 
-YouTube increasingly protects caption downloads with a browser proof token (PoToken). The public video page can still advertise a valid transcript while a direct timed-text request returns HTTP 200 with an empty body. Margin first uses the lightweight direct caption path when it is usable, then falls back to the `get-youtube-transcript` helper, which mints the proof token locally through BotGuard and fetches the caption JSON from your own IP.
+YouTube can advertise a valid transcript while direct timed-text requests return HTTP 200 with an empty body. Margin first tries the lightweight caption path and falls back to a local BotGuard/PoToken transcript helper when necessary. YouTube can still change internal APIs, rate-limit an IP, or require login for restricted videos, so caption retrieval remains best-effort. No YouTube account cookies are stored by Margin.
 
-The first v1.2 launch may install this additional dependency. `START_MARGIN.cmd` checks for it even when an older `node_modules` directory already exists, so upgrading an existing local copy does not silently keep the old broken caption path.
+## Privacy
 
-This remains best-effort: YouTube can change internal APIs, rate-limit an IP, or require login for restricted videos. No YouTube account cookies are stored or sent by Margin.
-
-## Original Sites source
-
-The source handoff identified the deployed Sites commit as:
-
-```text
-724dc6af1cd192958640f75d868e3fa441a6c25c
-```
-
-Original deployment/configuration files such as `.openai/hosting.json`, `vite.config.ts`, `cloudflare-env.d.ts`, the Drizzle schema/migration, and Sites helper scripts have been preserved rather than deleted. They are historical/reference material for the original hosted build; the localhost runtime does not use them.
-
-The pre-migration versions of the files changed for the localhost conversion are also preserved under `.migration-backup/`, with SHA-256 hashes in `changed-files.before.sha256`.
-
-## Security notes
-
-The API still checks same-origin browser requests. Provider API keys remain only in the current browser tab and are sent only when you explicitly format an article. They are not stored in SQLite or localStorage.
-
-Because this edition intentionally supports local AI providers, only run Margin on a machine/network you trust. The dev/start scripts bind to `127.0.0.1` by default rather than exposing the server to your LAN.
+Margin binds its development/production server to `127.0.0.1` by default. Your articles, annotations, connection profiles, and transcripts live in your local SQLite database. Content is sent to an AI provider only when you explicitly ask Margin to format an article.
